@@ -1,0 +1,1050 @@
+<!doctype html>
+<html lang="ka">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive,noimageindex">
+<meta name="theme-color" content="#0E5A50" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F1513" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="დოსიე">
+<title>აჯიბადემის დოსიე</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700&family=Noto+Serif+Georgian:wght@500;600;700&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+:root{
+  --ground:#F6F7F5; --surface:#FFFFFF; --surface2:#FBFCFB;
+  --ink:#15201D; --muted:#66756F; --line:#DCE4E0; --line2:#EBF0ED;
+  --accent:#0E5A50; --accent-soft:#E3EEEB;
+  --ok:#1D6F47; --ok-bg:#E6F2EA;
+  --warn:#8A5205; --warn-bg:#FAEFDC;
+  --gone:#9E2B2B; --gone-bg:#FBE8E6;
+  --shadow:0 1px 2px rgba(20,40,35,.05),0 8px 24px -16px rgba(20,40,35,.3);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0F1513; --surface:#171F1C; --surface2:#1C2522;
+    --ink:#E7EDEA; --muted:#93A39D; --line:#28332F; --line2:#212B28;
+    --accent:#4FB5A4; --accent-soft:#1A2E2A;
+    --ok:#63C08C; --ok-bg:#15291F;
+    --warn:#D79A3E; --warn-bg:#2A2213;
+    --gone:#E68080; --gone-bg:#2D1A1A;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -16px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0F1513; --surface:#171F1C; --surface2:#1C2522;
+  --ink:#E7EDEA; --muted:#93A39D; --line:#28332F; --line2:#212B28;
+  --accent:#4FB5A4; --accent-soft:#1A2E2A;
+  --ok:#63C08C; --ok-bg:#15291F;
+  --warn:#D79A3E; --warn-bg:#2A2213;
+  --gone:#E68080; --gone-bg:#2D1A1A;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -16px rgba(0,0,0,.8);
+}
+*{box-sizing:border-box}
+body{
+  background:var(--ground); color:var(--ink);
+  font-family:"Noto Sans Georgian",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:15px; line-height:1.55; margin:0;
+  padding-block:0 56px; padding-inline:18px;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:880px;margin:0 auto}
+h1,h2,h3{font-family:"Noto Serif Georgian",Georgia,serif;text-wrap:balance;margin:0}
+
+.mast{padding-block:30px 18px;border-bottom:2px solid var(--ink)}
+.eyebrow{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600}
+h1{font-size:clamp(25px,6vw,36px);line-height:1.12;font-weight:700;margin-top:8px;letter-spacing:-.01em}
+.sub{color:var(--muted);font-size:13.5px;margin-top:9px}
+
+/* ---------- folders ---------- */
+.folders{display:grid;grid-template-columns:repeat(auto-fill,minmax(236px,1fr));gap:12px;margin-top:26px}
+.folder{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;
+  background:var(--surface);border:1px solid var(--line);border-radius:4px;
+  padding:15px 15px 16px;cursor:pointer;font:inherit;color:inherit;
+  box-shadow:var(--shadow);transition:border-color .15s,transform .15s}
+.folder:hover{border-color:var(--accent);transform:translateY(-1px)}
+.folder:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.folder svg{flex:none;margin-top:1px}
+.f-name{font-family:"Noto Serif Georgian",serif;font-size:15.5px;font-weight:600;line-height:1.3}
+.f-sub{font-size:11.5px;color:var(--muted);margin-top:5px}
+.f-tag{display:inline-block;margin-top:8px;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;
+  font-weight:600;padding:2px 7px;border-radius:2px;background:var(--line2);color:var(--muted)}
+.folder.summary{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 32%,transparent)}
+.folder.summary .f-tag{background:var(--accent);color:var(--surface)}
+:root[data-theme="dark"] .folder.summary .f-tag,
+:root:not([data-theme="light"]) .folder.summary .f-tag{color:#0F1513}
+
+/* ---------- open folder ---------- */
+.crumb{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:22px;font-size:13px}
+.back{font:inherit;font-size:13px;font-weight:500;background:var(--surface);color:var(--ink);
+  border:1px solid var(--line);border-radius:999px;padding:6px 14px;cursor:pointer}
+.back:hover{border-color:var(--accent)}
+.crumb span{color:var(--muted)}
+
+.empty{margin-top:22px;background:var(--surface);border:1px dashed var(--line);border-radius:4px;
+  padding:46px 24px;text-align:center}
+.empty h2{font-size:21px;font-weight:700}
+.empty p{color:var(--muted);font-size:13.5px;margin:9px 0 0}
+
+/* ---------- stats ---------- */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;background:var(--line);
+  border:1px solid var(--line);margin-top:20px;border-radius:3px;overflow:hidden}
+.stat{background:var(--surface);padding:13px 14px}
+.stat b{display:block;font-family:"Noto Serif Georgian",serif;font-size:23px;font-weight:700;
+  line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{display:block;font-size:11.5px;color:var(--muted);margin-top:3px}
+.stat.due b{color:var(--gone)}
+.stat.have b{color:var(--ok)}
+
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:16px}
+button.tgl{font:inherit;font-size:13px;font-weight:500;color:var(--ink);background:var(--surface);
+  border:1px solid var(--line);border-radius:999px;padding:7px 15px;cursor:pointer;transition:.15s}
+button.tgl:hover{border-color:var(--accent)}
+button.tgl[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+:root[data-theme="dark"] button.tgl[aria-pressed="true"],
+:root:not([data-theme="light"]) button.tgl[aria-pressed="true"]{color:#0F1513}
+.hint{font-size:12px;color:var(--muted)}
+
+section{margin-top:22px;background:var(--surface);border:1px solid var(--line);
+  border-radius:4px;box-shadow:var(--shadow);overflow:hidden}
+.shead{padding:17px 18px;border-bottom:1px solid var(--line);background:var(--surface2);
+  display:flex;flex-wrap:wrap;gap:10px;align-items:baseline;justify-content:space-between}
+.shead h2{font-size:19px;font-weight:700;letter-spacing:-.01em}
+.doc{font-size:13px;color:var(--muted);margin-top:3px}
+.doc b{color:var(--ink);font-weight:600}
+.tot{font-family:"Noto Serif Georgian",serif;font-size:19px;font-weight:700;
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.body{padding:16px 18px 20px}
+
+h3{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);
+  font-weight:600;margin:22px 0 10px;font-family:"Noto Sans Georgian",sans-serif}
+h3:first-child{margin-top:4px}
+
+.pay{border:1px solid var(--line2);border-radius:3px;padding:11px 13px;margin-bottom:9px;background:var(--surface)}
+.pay-top{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;justify-content:space-between;margin-bottom:9px}
+.pay-name{font-weight:600;font-size:14px}
+.pay-sum{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pay-sum b{color:var(--ink);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;line-height:1.3;
+  padding:4px 9px;border-radius:3px;border:1px solid transparent;font-weight:500}
+.chip i{font-style:normal;font-weight:700}
+.chip.ok{background:var(--ok-bg);color:var(--ok);border-color:color-mix(in srgb,var(--ok) 22%,transparent)}
+.chip.warn{background:var(--warn-bg);color:var(--warn);border-color:color-mix(in srgb,var(--warn) 25%,transparent)}
+.chip.gone{background:var(--gone-bg);color:var(--gone);border-color:color-mix(in srgb,var(--gone) 28%,transparent)}
+.chip small{opacity:.78;font-size:10.5px;font-weight:400}
+
+.row{display:grid;grid-template-columns:1fr auto;gap:6px 14px;padding:9px 0;border-bottom:1px solid var(--line2);align-items:start}
+.row:last-child{border-bottom:0}
+.row-main{min-width:0}
+.row-t{font-size:13.5px;font-weight:500}
+.row-s{font-size:12px;color:var(--muted);margin-top:2px}
+.flag{font-size:12px;color:var(--gone);margin-top:4px;font-weight:500}
+.flag.w{color:var(--warn)}
+.flag.g{color:var(--ok)}
+
+.files{display:flex;flex-direction:column;gap:8px}
+button.file{display:flex;gap:12px;align-items:center;text-align:left;width:100%;font:inherit;color:inherit;
+  background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:11px 13px;cursor:pointer;
+  transition:border-color .15s,background .15s}
+button.file:hover{border-color:var(--accent);background:var(--surface2)}
+button.file:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button.file[aria-expanded="true"]{border-color:var(--accent);background:var(--accent-soft)}
+button.file svg{flex:none;color:var(--accent)}
+button.file>span:nth-child(2){flex:1;min-width:0}
+.fwrap{display:flex;flex-direction:column}
+.paycard{border:1px solid var(--line);border-radius:4px;margin-bottom:14px;overflow:hidden;background:var(--surface)}
+.payhead{padding:12px 14px;background:var(--surface2);border-bottom:1px solid var(--line)}
+.payhead .t{font-family:"Noto Serif Georgian",serif;font-size:15px;font-weight:700}
+.sums{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.sum{font-size:11.5px;padding:3px 9px;border-radius:3px;background:var(--line2);color:var(--muted);
+  font-variant-numeric:tabular-nums}
+.sum b{color:var(--ink);font-weight:600}
+.sum.fee{background:var(--warn-bg);color:var(--warn)}
+.sum.fee b{color:var(--warn)}
+.paynote{font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.45}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line)}
+.tile{background:var(--surface);padding:11px 10px 12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.tile .k{font-size:11.5px;font-weight:600;line-height:1.3}
+.tile .s{font-size:10.5px;color:var(--muted);line-height:1.35;word-break:break-word;flex:1}
+.tile button{font:inherit;font-size:11.5px;font-weight:600;background:var(--accent);color:#fff;border:0;
+  border-radius:999px;padding:5px 0;cursor:pointer;width:100%}
+:root[data-theme="dark"] .tile button,:root:not([data-theme="light"]) .tile button{color:#0F1513}
+.tile button[aria-expanded="true"]{background:var(--ink);color:var(--surface)}
+.tile .none{font-size:11px;color:var(--gone);text-align:center;padding:5px 0;border:1px dashed var(--line);
+  border-radius:999px}
+@media (max-width:620px){.tiles{grid-template-columns:repeat(2,1fr)}}
+.pdfbox{margin-top:8px;border:1px solid var(--line);border-radius:3px;overflow:hidden;background:var(--surface2)}
+.pdfbox .pages{max-height:78vh;overflow:auto;padding:10px;display:flex;flex-direction:column;gap:10px;align-items:center}
+.pdfbox canvas{max-width:100%;height:auto;background:#fff;box-shadow:0 1px 6px rgba(0,0,0,.18);border-radius:2px}
+.pdfbox .load{padding:26px;text-align:center;font-size:13px;color:var(--muted)}
+.up{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin-bottom:14px;padding:12px 13px;
+  border:1px dashed var(--line);border-radius:3px;background:var(--surface2)}
+.up button{font:inherit;font-size:13px;font-weight:600;background:var(--accent);color:#fff;border:0;
+  border-radius:999px;padding:8px 16px;cursor:pointer}
+:root[data-theme="dark"] .up button,:root:not([data-theme="light"]) .up button{color:#0F1513}
+.up button:disabled{opacity:.5;cursor:default}
+.up .st{font-size:12px;color:var(--muted)}
+.del{font:inherit;font-size:11px;background:transparent;color:var(--muted);border:1px solid var(--line);
+  border-radius:999px;padding:3px 9px;cursor:pointer;margin-left:6px}
+.del:hover{color:var(--gone);border-color:var(--gone)}
+.pdfbox img{display:block;max-width:100%;height:auto;margin:0 auto}
+.cpy{font:inherit;font-size:12px;font-weight:500;background:var(--surface);color:var(--ink);border:1px solid var(--line);
+  border-radius:999px;padding:5px 12px;cursor:pointer;margin-top:8px}
+.cpy:hover{border-color:var(--accent)}
+.pdfbox .fallback{padding:16px;font-size:12.5px;color:var(--muted);word-break:break-all}
+@media (max-width:520px){.pdfbox .pages{max-height:62vh}}
+.file-n{display:block;font-size:13.5px;font-weight:600}
+.file-s{display:block;font-size:11.5px;color:var(--muted);margin-top:2px;font-variant-numeric:tabular-nums}
+.file-w{display:block;font-size:11px;color:var(--warn);margin-top:3px;font-weight:500}
+.file-x{flex:none;font-size:10.5px;letter-spacing:.08em;font-weight:700;color:var(--muted);
+  border:1px solid var(--line);border-radius:2px;padding:2px 6px}
+
+.note{font-size:12.5px;color:var(--muted);background:var(--surface2);border-left:2px solid var(--accent);
+  padding:9px 12px;margin-top:12px;border-radius:0 3px 3px 0}
+
+label.chk{display:flex;gap:9px;align-items:flex-start;font-size:13px;padding:7px 0;cursor:pointer}
+label.chk input{margin:3px 0 0;accent-color:var(--accent);flex:none;width:15px;height:15px}
+label.chk input:checked+span{text-decoration:line-through;color:var(--muted)}
+label.chk:focus-within{outline:2px solid var(--accent);outline-offset:3px;border-radius:3px}
+
+footer{margin-top:38px;padding-top:18px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+.hidden{display:none}
+@media (max-width:420px){
+  .row{grid-template-columns:1fr}
+  .shead{flex-direction:column;gap:6px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* ---------- telefonistvis ---------- */
+html{-webkit-text-size-adjust:100%}
+img{max-width:100%}
+[hidden]{display:none!important}
+a{color:var(--accent)}
+.crumb{position:sticky;top:0;z-index:20;background:var(--ground);margin-top:0;
+  padding-block:12px 10px;border-bottom:1px solid var(--line2)}
+.back{min-height:40px;display:inline-flex;align-items:center}
+.pbar{display:flex;gap:8px;flex-wrap:wrap;padding:9px 10px;background:var(--surface);
+  border-bottom:1px solid var(--line)}
+.pbar a{font-size:12px;font-weight:600;color:var(--accent);text-decoration:none;
+  border:1px solid var(--line);border-radius:999px;padding:0 13px;min-height:36px;
+  display:inline-flex;align-items:center;background:var(--surface)}
+.pbar a:active{background:var(--accent-soft)}
+.pdfbox .pages a{display:block}
+.pdfbox .pages img{cursor:zoom-in}
+@media (max-width:760px){
+  body{padding-inline:max(14px,env(safe-area-inset-left)) max(14px,env(safe-area-inset-right));
+       padding-bottom:calc(44px + env(safe-area-inset-bottom))}
+  .pdfbox .pages{max-height:none;overflow:visible;padding:8px}
+  .folders{grid-template-columns:1fr}
+  .folder{padding:16px}
+  button.file{padding:14px 13px}
+  .tile button{padding:9px 0;min-height:38px}
+  .tile .none{padding:9px 0}
+  .body{padding:14px 13px 18px}
+  .shead{padding:15px 13px}
+  .mast{padding-block:22px 16px}
+  button.tgl{min-height:40px}
+}
+@media (max-width:400px){.tiles{grid-template-columns:1fr}}
+
+/* ---------- კოდი ---------- */
+.wrap[hidden]{display:none!important}
+.gate{position:fixed;inset:0;z-index:100;background:var(--ground);
+  display:flex;align-items:center;justify-content:center;
+  padding:24px max(18px,env(safe-area-inset-left));}
+.gate form{width:100%;max-width:300px;text-align:center}
+.glock{width:54px;height:54px;margin:0 auto 18px;border-radius:50%;
+  background:var(--accent-soft);color:var(--accent);
+  display:flex;align-items:center;justify-content:center}
+.gate h2{font-family:"Noto Serif Georgian",Georgia,serif;font-size:21px;font-weight:700}
+.gate p{color:var(--muted);font-size:13.5px;margin:8px 0 20px}
+.gate input{width:100%;font:inherit;font-size:26px;letter-spacing:.42em;text-align:center;
+  padding:14px 0 14px .42em;border:1px solid var(--line);border-radius:4px;
+  background:var(--surface);color:var(--ink);-webkit-appearance:none}
+.gate input:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+.gate button{width:100%;margin-top:12px;font:inherit;font-size:15px;font-weight:600;
+  background:var(--accent);color:#fff;border:0;border-radius:999px;
+  padding:14px 0;min-height:50px;cursor:pointer}
+:root[data-theme="dark"] .gate button,
+:root:not([data-theme="light"]) .gate button{color:#0F1513}
+.gerr{color:var(--gone);font-size:13px;min-height:20px;margin-top:12px}
+</style>
+
+<div class="gate" id="gate">
+  <form id="gateform" autocomplete="off">
+    <div class="glock">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <rect x="4" y="10" width="16" height="11" rx="2.4" stroke="currentColor" stroke-width="1.7"/>
+        <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="1.7"
+              stroke-linecap="round"/>
+        <circle cx="12" cy="15.5" r="1.5" fill="currentColor"/>
+      </svg>
+    </div>
+    <h2>აჯიბადემის დოსიე</h2>
+    <p>შეიყვანე კოდი</p>
+    <input id="gpin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4"
+           autocomplete="off" aria-label="კოდი">
+    <button type="submit">გახსნა</button>
+    <div class="gerr" id="gerr" role="status"></div>
+  </form>
+</div>
+
+<div class="wrap" hidden>
+<header class="mast">
+  <div class="eyebrow">Acıbadem Maslak · 13–16 ოქტომბერი 2026</div>
+  <h1>საბუთების დოსიე</h1>
+  <p class="sub">ხათია ოზაშვილი · პაციენტის № 42680748 · პასპორტი 21AA46652 · ხუთი მიმართულება, ათი გადახდა, ჯამში $4 428.21</p>
+</header>
+<main id="app"></main>
+<footer id="foot"></footer>
+</div>
+
+<script>
+const FOLDERS=[
+ {key:'rheum', name:'რევმატოლოგია',            doctor:'Asst. Prof. Dr. Mert Öztaş'},
+ {key:'gyn',   name:'მეან-გინეკოლოგია',        doctor:'Prof. Dr. Faruk Suat Dede'},
+ {key:'ent',   name:'ოტორინოლარინგოლოგია',     doctor:'Prof. Dr. A. Erdem Kılavuz'},
+ {key:'mammo', name:'მამოლოგია',               doctor:'Prof. Dr. Cihan Uras'},
+ {key:'endo',  name:'ენდოკრინოლოგია',          doctor:'Prof. Dr. Neslihan Kurtulmuş'}
+];
+
+const FILES={
+ 'rheum/fin':{pays:[
+  {n:'კონსულტაცია', lira:'9 849.42 ₺', inv:null, bank:'528.44 ₾', diff:'დასაზუსტებელი',
+   note:'დოლარის ინვოისი არ გაცემულა — სხვაობა ვერ გამოითვლება. ლირის ფატურას ვალუტის ექვივალენტიც არ უწერია.',
+   docs:[{k:'ტერმინალის ჩეკი ₺',h:'img/rheum-consult-slip.jpg',t:'image/jpeg',s:'Visa …2739 · 13.10 09:13'},
+         {k:'ინვოისი ₺',h:'img/rheum-consult-fatura.jpg',t:'image/jpeg',s:'MSA…284300'},
+         {k:'ინვოისი $',h:null,s:'არ გაუცია'},
+         {k:'ბანკის ქვითარი',h:'doc/rheum-consult-bank.pdf',s:'საქ. ბანკი …2836'}]},
+  {n:'ლაბორატორია — 15 ანალიზი', lira:'35 858.01 ₺', inv:'$728.13', bank:'$752.53', diff:'+$24.40',
+   docs:[{k:'ტერმინალის ჩეკი ₺',h:'img/rheum-lab-slip.jpg',t:'image/jpeg',s:'MC …8342 · 13.10 10:36'},
+         {k:'ინვოისი ₺',h:'img/rheum-lab-fatura.jpg',t:'image/jpeg',s:'MSA…284483'},
+         {k:'ინვოისი $',h:'doc/rheum-lab-inv.pdf',s:'MSA…284483'},
+         {k:'ბანკის ქვითარი',h:'doc/rheum-lab-bank.pdf',s:'REF 628648578725'}]},
+  {n:'იდაყვის მრტ', lira:'26 383.78 ₺', inv:'$535.39', bank:'$553.41', diff:'+$18.02',
+   docs:[{k:'ტერმინალის ჩეკი ₺',h:'img/rheum-mri-slip.jpg',t:'image/jpeg',s:'MC …8342 · 14.10 15:03'},
+         {k:'ინვოისი ₺',h:'img/rheum-mri-fatura.jpg',t:'image/jpeg',s:'MSA…286722 · 1,5 T'},
+         {k:'ინვოისი $',h:'doc/rheum-mri-inv.pdf',s:'MSA…286722'},
+         {k:'ბანკის ქვითარი',h:'doc/rheum-mri-bank.pdf',s:'REF 628715151193'}]},
+  {n:'კონტრასტი და მასალები', lira:'9 315.65 ₺', inv:'$188.93', bank:'$195.26', diff:'+$6.33',
+   docs:[{k:'ტერმინალის ჩეკი ₺',h:'img/rheum-contrast-slip.jpg',t:'image/jpeg',s:'MC …8342 · 15.10 14:18'},
+         {k:'ინვოისი ₺',h:'img/rheum-contrast-fatura.jpg',t:'image/jpeg',s:'MSA…287733 · 3,0 T'},
+         {k:'ინვოისი $',h:'doc/rheum-contrast-inv.pdf',s:'MSA…287733'},
+         {k:'ბანკის ქვითარი',h:'doc/rheum-contrast-bank.pdf',s:'REF 628825048156'}]},
+  {n:'გულმკერდის რენტგენი', lira:'3 782.20 ₺', inv:'$76.80', bank:'$79.37', diff:'+$2.57',
+   note:'დანიშნა რევმატოლოგმა — 13.10 ფორმაში წერია „Akciğer Grafisi (Arka Ön) (biyolojik hazırlık)", დასკვნაზე დამნიშნავი ექიმია Mert Öztaş. გადახდა ერთიანია ოტორინოლარინგოლოგიის ორ კტ-თან (სულ 37 930.11 ₺ / $770.20 / ბანკი $796.01) — აქ გამოტანილია მხოლოდ რენტგენის წილი, რომ თანხა ორჯერ არ დაითვალოს.',
+   docs:[{k:'ტერმინალის ჩეკი ₺',h:'img/ent-ct-slip.jpg',t:'image/jpeg',s:'MC …8342 · 13.10 12:17 · REF 628650042375 · სულ 37 930.11 ₺'},
+         {k:'ინვოისი ₺',h:'img/ent-ct-fatura.jpg',t:'image/jpeg',s:'MSA…284792 · 1-ლი სტრიქონი: Chest x ray 3 782.20 ₺'},
+         {k:'ინვოისი $',h:'doc/ent-ct-inv.pdf',s:'MSA…284792 · სულ $770.20'},
+         {k:'ბანკის ქვითარი',h:'doc/ent-ct-bank.pdf',s:'REF 628650042375 · სულ $796.01'}]}]},
+
+ 'rheum/rx':{items:[
+   {n:'ექიმის წერილი — „To whom it may concern"', s:'Rapor No 4531358114 · 10.11.2026 · Etanercept 50 მგ კანქვეშ, კვირაში ერთხელ, 3 თვე · ლეფლუნომიდი 20 მგ გრძელდება · ბეჭედი და ხელმოწერა',
+    h:'doc/rheum-letter.pdf',
+    warn:'აკლია: ვიზიტების თარიღები (13.10 და 20.10) · ექიმის სახელი („Doktor:" ველი ცარიელია) · კვლევების ჩამონათვალი, მათ შორის კონტრასტით მრტ'},
+   {n:'დაზღვევის ფორმა 13.10 — თურქული, ბეჭდიანი ასლი', s:'№ 4531208020 · M06.9 · Dr. Mert Öztaş · ბეჭედი 164092', h:'img/rheum-form-tr.jpg', t:'image/jpeg'},
+   {n:'დაზღვევის ფორმა 13.10 — თურქული ორიგინალი (PDF)', s:'№ 4531208020 · კლინიკის ელექტრონული ასლი', h:'doc/rheum-form-1310-tr.pdf'},
+   {n:'დაზღვევის ფორმა 13.10 — ინგლისურად', s:'№ 4531208020 · 15 ანალიზი + მრტ + რენტგენი ჩამოთვლილია · მკურნალობის ველში წერია მხოლოდ „test"',
+    h:'doc/rheum-form-1310-en.pdf',
+    warn:'„NON-SWORN TRANSLATOR" დისკლეიმერით · მრტ მითითებულია როგორც „Without Contrast"'},
+   {n:'დაზღვევის ფორმა 20.10 — ინგლისურად', s:'№ 4531244269 · „Seropositive. Synovitis in the elbow +" · მკურნალობა: „ETA was recommended"',
+    h:'doc/rheum-form-2010-en.pdf',
+    warn:'ხელმოუწერელია · თურქული ორიგინალი არ გვაქვს'},
+   {n:'რეცეპტი — № 4531248257 (20.10.2026)', s:'ENBREL PEN 50 მგ · 1×1 კანქვეშ, კვირაში ერთხელ · 6 კოლოფი (≈3 თვე) · დიაგნოზი M06.9 · პირადი ბეჭედი და ხელმოწერა, დიპლომი 164092',
+    h:'doc/rheum-rx-enbrel.pdf'},
+   {n:'Enbrel-ის შეძენა — აფთიაქის ჩეკი', s:'ავერსი-ფარმა №70 · 20.10.2026 17:48 · „ენბრელ მაივლიკ 50მგ/მლ #2 შპრიცი/კალამი" × 1 · 500.00 ₾ · ნაღდი · FR-25414448',
+    h:'img/rheum-enbrel-receipt.jpg', t:'image/jpeg'},
+   {n:'Enbrel-ის შეძენა — ფისკალური ჩეკი', s:'500.00 ₾ · 20.10.2026 17:49 · ჩეკი 007750 · ბეჭდით',
+    h:'img/rheum-enbrel-fiscal.jpg', t:'image/jpeg',
+    warn:'ეს საქართველოში შეძენილია — პოლისის 1.1.1.2 პუნქტში არ შედის. ამბულატორიული მედიკამენტების ცალკე მოთხოვნაა.'}]},
+ 'gyn/fin':{pays:[
+  {n:'კონსულტაცია + შარდის ანალიზები', lira:'22 972.27 ₺', inv:'$466.48', bank:'$482.10', diff:'+$15.62',
+   note:'ლირის ფატურაში სამი სტრიქონია: Examination 17 818.50 ₺ · Culture, Urine 4 105.55 ₺ · Urinalysis 1 048.22 ₺. ვალუტის ექვივალენტი — 416.86 EURO.',
+   docs:[{k:'ტერმინალის ჩეკი ₺',h:'img/gyn-slip.jpg',t:'image/jpeg',s:'MC …8342 · 13.10 · REF 628600992951'},
+         {k:'ინვოისი ₺',h:'img/gyn-fatura.jpg',t:'image/jpeg',s:'MSA…284411 · 3 სტრიქონი'},
+         {k:'ინვოისი $',h:'doc/gyn-inv.pdf',s:'MSA…284411'},
+         {k:'ბანკის ქვითარი',h:'doc/gyn-bank.pdf',s:'REF 628600992951'}]}]},
+
+ 'gyn/rx':{items:[
+   {n:'ექიმის წერილი — „To whom it may concern"', s:'10.11.2026 · Prof. Dr. Faruk Suat Dede · გასინჯვა 13.10 და კონტროლი 16.10 · შარდის ანალიზი და კულტურა · ოთხივე წამალი დოზით · ბეჭედი და ხელმოწერა',
+    h:'doc/gyn-letter.pdf',
+    warn:'აკლია: Rapor No და გაცემის თარიღი სათაურში · დიპლომის № 61736 · ტრანსვაგინალური ექოსკოპია ცალკე ჩატარებულ კვლევად გამოყოფილი არ არის'},
+   {n:'დაზღვევის ფორმა 13.10 — თურქული, ბეჭდიანი ასლი', s:'№ 4531208431 · N76.0 მწვავე ვაგინიტი · N83.2 საკვერცხის კისტა · Prof. Dr. Faruk Suat Dede · ბეჭედი 61736',
+    h:'img/gyn-form-tr.jpg', t:'image/jpeg'},
+   {n:'დაზღვევის ფორმა 13.10 — თურქული ორიგინალი (PDF)', s:'№ 4531208431 · კლინიკის ელექტრონული ასლი', h:'doc/gyn-form-1310-tr.pdf'},
+   {n:'დაზღვევის ფორმა 13.10 — ინგლისურად', s:'№ 4531208431 · N76.0 · N83.2 · მოთხოვნილია შარდის ანალიზი და კულტურა · მკურნალობა: „Urinalysis and urine culture requested. RV"',
+    h:'doc/gyn-form-1310-en.pdf',
+    warn:'წამლები ფორმაში სახელით არ წერია, თუმცა რეცეპტი იმავე დღეს გაიცა'},
+   {n:'რეცეპტი 13.10 — № 4531208391, ბეჭდიანი ასლი', s:'Neo-Penotran Forte-L 1×1 ინტრავაგინალურად, 1 კვირა · Triflucan 200 მგ 1×1, კვირაში ერთხელ · პირადი ბეჭედი Dip.Tes.No 9597',
+    h:'img/gyn-rx-1310.jpg', t:'image/jpeg'},
+   {n:'რეცეპტი 13.10 — № 4531208391 (PDF)', s:'იგივე რეცეპტი, კლინიკის ელექტრონული ასლი', h:'doc/gyn-rx-1310.pdf'},
+   {n:'დაზღვევის ფორმა 16.10 — № 4531229872', s:'კონტროლი 16.10: „შარდის კულტურაში E. coli გაიზარდა" · მკურნალობა: „გაიცა რეცეპტი"',
+    h:'doc/gyn-form-1610.pdf',
+    warn:'ხელმოუწერელია · წამლების სახელები არ წერია'},
+   {n:'დაზღვევის ფორმა 16.10 — თურქულად', s:'№ 4531229872 · Prof. Dr. Faruk Suat Dede',
+    h:'doc/gyn-form-1610-tr.pdf'},
+   {n:'რეცეპტი 16.10 — № 4531229869', s:'PIYELOSEPTYL 30 კაფსულა 3×1 პერორალურად, 10 დღე · MONUROL 1 სასე 1×1, 2 დოზა, 3 დღის ინტერვალით · დიაგნოზი N76.0 და N83.2 · Prof. Dr. Faruk Suat Dede, დიპლომი 61736',
+    h:'doc/gyn-rx-1610.pdf'}]},
+
+ 'ent/fin':{pays:[
+  {n:'კონსულტაცია', lira:'13 542.95 ₺', inv:'$275.00', bank:'$284.22', diff:'+$9.22',
+   note:'ლირის ფატურაში ერთი სტრიქონი: Examination (Kulak Burun Bogaz Prof. Dr. A. Erdem Kılavuz). ვალუტის ექვივალენტი — 245.76 EURO.',
+   docs:[{k:'ტერმინალის ჩეკი ₺',h:'img/ent-consult-slip.jpg',t:'image/jpeg',s:'MC …8342 · 13.10 10:12 · REF 628648262640'},
+         {k:'ინვოისი ₺',h:'img/ent-consult-fatura.jpg',t:'image/jpeg',s:'MSA…284419'},
+         {k:'ინვოისი $',h:'doc/ent-consult-inv.pdf',s:'MSA…284419'},
+         {k:'ბანკის ქვითარი',h:'doc/ent-consult-bank.pdf',s:'REF 628648262640'}]},
+  {n:'კისრის კტ + სინუსების კტ', lira:'34 147.91 ₺', inv:'$693.40', bank:'$716.64', diff:'+$23.24',
+   note:'გადახდა ერთიანია რევმატოლოგიის გულმკერდის რენტგენთან (სულ 37 930.11 ₺ / $770.20 / ბანკი $796.01). აქ გამოტანილია მხოლოდ ორი კტ-ის წილი: CT, Cervical soft tissue 20 488.34 ₺ ($416.03) + CT, Paranasal Sinus 13 659.57 ₺ ($277.37). რენტგენი ($76.80) რევმატოლოგიის ფოლდერშია.',
+   docs:[{k:'ტერმინალის ჩეკი ₺',h:'img/ent-ct-slip.jpg',t:'image/jpeg',s:'MC …8342 · 13.10 12:17 · REF 628650042375'},
+         {k:'ინვოისი ₺',h:'img/ent-ct-fatura.jpg',t:'image/jpeg',s:'MSA…284792 · 3 სტრიქონი'},
+         {k:'ინვოისი $',h:'doc/ent-ct-inv.pdf',s:'MSA…284792'},
+         {k:'ბანკის ქვითარი',h:'doc/ent-ct-bank.pdf',s:'REF 628650042375'}]}]},
+
+ 'ent/rx':{items:[
+   {n:'დაზღვევის ფორმა 13.10 — თურქულად', s:'№ 4531212425 · J34.8 · Prof. Dr. A. Erdem Kılavuz · ბეჭედი 144065',
+    h:'img/ent-form-tr.jpg', t:'image/jpeg',
+    warn:'„Ameliyat Geçmişi: Yok" — არასწორია · ჩვენებაში „Hastanın gebelik şüphesi vardır"'},
+   {n:'დაზღვევის ფორმა 13.10 — ინგლისურად', s:'№ 4531212425 · დანიშნულია კისრის კტ და პარანაზალური სინუსების კტ · რეკომენდებულია 3 ოპერაცია · რევმატოლოგთან გადამისამართება (RA + შეგრენი?)',
+    h:'doc/ent-form-1310-en.pdf',
+    warn:'„Surgical History: None" — არასწორია'},
+   {n:'რეცეპტი — № 4531248742 (20.10.2026)', s:'Sterimar ცხვირის სპრეი 100 მლ · 3×1 ინტრანაზალურად, 90 დღე · RISONEL 0.05% (50 მკგ/დოზა) 140 დოზა · 1×2 ინტრანაზალურად, 90 დღე · დიაგნოზი J34.8 · Prof. Dr. A. Erdem Kılavuz, დიპლომი 144065',
+    h:'doc/ent-rx-sprays.pdf'}],
+  miss:['20.10-ის ფორმა არ არსებობს — კონსულტაცია ტელეფონით ჩატარდა']},
+
+ 'mammo/fin':{pays:[
+  {n:'კონსულტაცია + მკერდის ექოსკოპია', lira:'25 644.43 ₺', inv:'$520.39', bank:'$537.90', diff:'+$17.51',
+   note:'ინვოისში ორი სტრიქონია: Examination $275.00 და US, Breast (Bilateral) $245.39.',
+   docs:[{k:'ტერმინალის ჩეკი ₺',h:null,s:'ვერ ნაპოვნია'},
+         {k:'ინვოისი ₺',h:null,s:'ვერ ნაპოვნია'},
+         {k:'ინვოისი $',h:'doc/mammo-inv.pdf',s:'MSA…286415'},
+         {k:'ბანკის ქვითარი',h:'doc/mammo-bank.pdf',s:'REF 628713617673'}]}]},
+
+ 'mammo/rx':{items:[
+   {n:'დაზღვევის ფორმა 14.10 — თურქულად', s:'№ 4531217158 · N64.5 · Prof. Dr. Cihan Uras · ბეჭედი 31678/22', h:'img/mammo-form-tr.jpg', t:'image/jpeg'},
+   {n:'დაზღვევის ფორმა 14.10 — ინგლისურად', s:'№ 4531217158 · დანიშნულია ორმხრივი მკერდის ექოსკოპია · დიაგნოზი N64.5',
+    h:'doc/mammo-form-1410-en.pdf',
+    warn:'მკურნალობის ველი სრულიად ცარიელია („Treatment Note: 14.10.2026:")'}],
+  miss:['ექიმის წერილი — არ არსებობს, თუმცა კონსულტაციაში $275 გადახდილია',
+        'რეცეპტი არ გაცემულა — BIRADS II-ზე საჭირო არ არის']},
+
+ 'endo/fin':{pays:[
+  {n:'კონსულტაცია', lira:'24 395.05 ₺', inv:'$495.36', bank:'$511.96', diff:'+$16.60',
+   note:'ერთადერთი ფატურა დღგ-ით და ტიპით „SATIŞ": სრული 26 593.44 ₺ − ფასდაკლება 4 416.12 ₺ + დღგ 10% 2 217.73 ₺ = 24 395.05 ₺. ვალუტის ექვივალენტი — 442.68 EURO.',
+   docs:[{k:'ტერმინალის ჩეკი ₺',h:'img/endo-consult-slip.jpg',t:'image/jpeg',s:'MC …8342 · 13.10 12:58 · REF 628650821212'},
+         {k:'ინვოისი ₺',h:'img/endo-consult-fatura.jpg',t:'image/jpeg',s:'MSA…284901 · დღგ 10%'},
+         {k:'ინვოისი $',h:'doc/endo-consult-inv.pdf',s:'MSA…284901'},
+         {k:'ბანკის ქვითარი',h:'doc/endo-consult-bank.pdf',s:'REF 628650821212'}]},
+  {n:'ლაბორატორია — 6 ანალიზი', lira:'12 229.29 ₺', inv:'$248.33', bank:'$256.65', diff:'+$8.32',
+   note:'ფატურაში ექვსივე ანალიზი გაწერილია: HbA1c 2 969.97 ₺ · ინსულინი და ინსულინი პოსტპრანდიული 2 882.62 ₺ თითო · TSH 2 009.10 ₺ · გლუკოზა უზმოზე და პოსტპრანდიული 742.49 ₺ თითო. ვალუტის ექვივალენტი — 221.92 EURO.',
+   docs:[{k:'ტერმინალის ჩეკი ₺',h:'img/endo-lab-slip.jpg',t:'image/jpeg',s:'Halkbank · 13.10 16:03 · ONAY 613662'},
+         {k:'ინვოისი ₺',h:'img/endo-lab-fatura.jpg',t:'image/jpeg',s:'MSA…285377 · 6 სტრიქონი'},
+         {k:'ინვოისი $',h:'doc/endo-lab-inv.pdf',s:'MSA…285377'},
+         {k:'ბანკის ქვითარი',h:'doc/endo-lab-bank.pdf',s:'REF 628616876398'}]}]},
+
+ 'endo/rx':{items:[
+   {n:'დაზღვევის ფორმა 13.10 — ინგლისურად', s:'№ 4531210661 · E14.9 · დანიშნულია ექვსივე ანალიზი HbA1c-ის ჩათვლით · Prof. Dr. Neslihan Kurtulmuş',
+    h:'doc/endo-form-1310-en.pdf',
+    warn:'მკურნალობის ველი ცარიელია („Treatment Note: 13.10.2026:")'},
+   {n:'დაზღვევის ფორმა 15.10 — თურქული, პირადი ბეჭდით', s:'№ 4531223198 · პირადი ბეჭედი Dip. Tes. No 57789 — ერთადერთი ფორმა ექიმის პირადი ბეჭდით',
+    h:'img/endo-form-1510-tr.jpg', t:'image/jpeg'},
+   {n:'დაზღვევის ფორმა 15.10 — თურქული ორიგინალი (PDF)', s:'№ 4531223198 · კლინიკის ელექტრონული ასლი', h:'doc/endo-form-1510-tr.pdf'},
+   {n:'დაზღვევის ფორმა 15.10 — ინგლისურად', s:'№ 4531223198 · „დიაბეტი კვლავ არ არის, ჯანსაღი კვება, გლუკოზა გაკონტროლდება RA-ს მეთვალყურეობისას, საჭიროებისამებრ OGTT"',
+    h:'doc/endo-form-1510-en.pdf',
+    warn:'ერთი ველი თურქულად დარჩა გადაუთარგმნელი („Şikayetin Başlangıç Tarihi")'}],
+  miss:['რეცეპტი არ გაცემულა — დიაგნოზი არ დადასტურდა']},
+
+ 'rheum/test':{
+  ordered:'<b>13.10.2026-ს ექიმმა დანიშნა:</b> სისხლის საერთო ანალიზი · ედსი · CRP · კრეატინინი · BUN · ALT · AST · ALP · კრეატინკინაზა · შარდმჟავა · გლუკოზა უზმოზე · რევმატოიდული ფაქტორი · anti-CCP · ვიტამინი D · QuantiFERON-TB Gold · შარდის საერთო ანალიზი · მარჯვენა იდაყვის მრტ (ფორმაში „უკონტრასტო", 3.0 T) · გულმკერდის რენტგენი',
+  orderedFlag:'კონტრასტით მრტ არცერთ საბუთში დანიშნული არ არის — $188.93',
+  items:[
+   {n:'სისხლის საერთო ანალიზი და 15 ტესტი — № 4531209050', s:'anti-CCP >200 · რევმატოიდული ფაქტორი 175 · ედსი 9 · CRP 0.15 · QuantiFERON-TB უარყოფითი · შარდმჟავა 1.10 (დაბალი)',
+    h:'doc/rheum-lab-result.pdf'},
+   {n:'გულმკერდის რენტგენი — № 4531209942', s:'13.10.2026 · დოქტ. Mehmet Ercan · ფილტვები სუფთა, აქტიური ინფილტრაცია არ ვლინდება',
+    h:'doc/rheum-xray-result.pdf'},
+   {n:'მარჯვენა იდაყვის მრტ, კონტრასტამდე — № 4531218527', s:'14.10.2026 · დოქტ. Başak Kumbasar · ეროზიები, პანუსი, სახსარშიდა გამონაჟონი, ულნარული ნერვის შეშუპება',
+    h:'doc/rheum-mri-pre.pdf',
+    warn:'სათაურში „უკონტრასტო, 1.5 T", ტექსტში კი „3 ტესლა, კონტრასტით, Gadovist 7.5"'},
+   {n:'მარჯვენა იდაყვის მრტ, კონტრასტის შემდეგ — № 4531219225', s:'14.10.2026 · დოქტ. Başak Kumbasar · კონტრასტის გამოხატული დაგროვება — პანუსი',
+    h:'doc/rheum-mri-post.pdf'},
+   {n:'ლაბორატორიის პასუხი — თურქულად', s:'№ 4531209050', h:'doc/rheum-lab-result-tr.pdf'},
+   {n:'გულმკერდის რენტგენი — თურქულად', s:'№ 4531209942', h:'doc/rheum-xray-tr.pdf'},
+   {n:'იდაყვის მრტ, კონტრასტამდე — თურქულად', s:'№ 4531218527', h:'doc/rheum-mri-pre-tr.pdf'},
+   {n:'იდაყვის მრტ, კონტრასტის შემდეგ — თურქულად', s:'№ 4531219225', h:'doc/rheum-mri-post-tr.pdf'}]},
+
+ 'ent/test':{
+  ordered:'<b>13.10.2026-ს ექიმმა დანიშნა:</b> კისრის კტ (უკონტრასტო, თხელი ანათალები კარინამდე — ჩვენება: შესაძლო ტრაქეის სტენოზი) · პარანაზალური სინუსების კტ',
+  items:[
+   {n:'კისრის კტ — № 4531209940', s:'13.10.2026 · დოქტ. Müjgan Orman · ცხვირის ძგიდის დევიაცია, ნიჟარის ჰიპერტროფია, მარცხენა ყბისზედა სინუსში სეკრეცია',
+    h:'doc/ent-ct-neck.pdf',
+    warn:'ინგლისურ ვერსიაში „Brain CT" წერია „Neck CT"-ის ნაცვლად · ტრაქეა შეფასებული არ არის · ჩვენებაში „ორსულობის ეჭვი არსებობს"'},
+   {n:'პარანაზალური სინუსების კტ — № 4531209941', s:'13.10.2026 · დოქტ. Müjgan Orman · მარჯვენა ყბისზედა სინუსში მილიმეტრული რეტენციული კისტა',
+    h:'doc/ent-ct-sinus.pdf'},
+   {n:'კისრის კტ — თურქულად', s:'№ 4531209940 · „PARANAZAL SİNÜS BT + BOYUN BT İNCELEMESİ"', h:'doc/ent-ct-neck-tr.pdf'},
+   {n:'პარანაზალური სინუსების კტ — თურქულად', s:'№ 4531209941', h:'doc/ent-ct-sinus-tr.pdf'}]},
+
+ 'gyn/test':{
+  ordered:'<b>13.10.2026-ს ექიმმა დანიშნა:</b> შარდის საერთო ანალიზი · შარდის კულტურა. კონსულტაციის ფარგლებში ასევე ჩატარდა ტრანსვაგინალური ექოსკოპია (ენდომეტრიუმი 10 მმ, მარჯვენა საკვერცხეში 17×15 მმ კისტა).',
+  orderedFlag:'ტრანსვაგინალური ექოსკოპია ინვოისში ცალკე სტრიქონად არ არის გამოყოფილი',
+  items:[
+   {n:'შარდის საერთო ანალიზი და კულტურა — № 4531208981', s:'ნიტრიტი 2+ · ბაქტერია ბევრი · ლეიკოციტი 6 · კულტურა: E. coli 100 000 CFU/მლ · ანტიბიოგრამა',
+    h:'doc/gyn-urine-result.pdf',
+    warn:'ანტიბიოგრამაში ნიტროფურანტოინის მგრძნობელობა გამოტანილი არ არის, თუმცა Piyeloseptyl სწორედ ის არის'},
+   {n:'შარდის ანალიზი და კულტურა — თურქულად', s:'№ 4531208981', h:'doc/gyn-urine-result-tr.pdf'}]},
+
+ 'mammo/test':{
+  ordered:'<b>14.10.2026-ს ექიმმა დანიშნა:</b> ორივე სარძევე ჯირკვლის ულტრაბგერითი კვლევა (US, Meme — Bilateral)',
+  items:[
+   {n:'მკერდის ექოსკოპია ფერადი დოპლერით — № 4531217197', s:'14.10.2026 · ორივე მხარეს მარტივი კისტები · მკვრივი წარმონაქმნები არ არის · BIRADS II',
+    h:'doc/mammo-us-result.pdf',
+    warn:'რადიოლოგის სახელი და ხელმოწერა მითითებული არ არის — ინვოისში შემსრულებელია დოც. დრ. Fahrettin Kılıç'},
+   {n:'მკერდის ექოსკოპია — თურქულად', s:'№ 4531217197 · Çekimi İsteyen Hekim: Cihan Uras · Doktor: -',
+    h:'doc/mammo-us-result-tr.pdf'}]},
+
+ 'endo/test':{
+  ordered:'<b>13.10.2026-ს ექიმმა დანიშნა:</b> გლუკოზა უზმოზე · გლუკოზა პოსტპრანდიული · TSH · ინსულინი · ინსულინი პოსტპრანდიული · HbA1c — ექვსივე ჩატარდა',
+  items:[
+   {n:'ენდოკრინოლოგიური ლაბორატორიული პასუხი — № 4531212524', s:'გლუკოზა 92/84 · პოსტპრანდიული 98 · HbA1c 5.0 · HOMA-IR 0.63 · TSH 0.60 — ყველაფერი ნორმაშია, დიაბეტი არ დადასტურდა',
+    h:'doc/endo-lab-result.pdf'},
+   {n:'ენდოკრინოლოგიური ლაბორატორიული პასუხი — თურქულად', s:'№ 4531212524', h:'doc/endo-lab-result-tr.pdf'}]}
+
+};
+
+const SUBS=[
+ {key:'fin',  name:'ჩეკი და ინვოისი',                     hint:'ტერმინალის ჩეკი · ლირის ინვოისი · დოლარის ინვოისი · ბანკის ქვითარი'},
+ {key:'rx',   name:'დანიშნულება',                          hint:'დაზღვევის ფორმა · ექიმის წერილი · რეცეპტი'},
+ {key:'test', name:'კვლევების ჩამონათვალი და პასუხები',    hint:'რა დანიშნა ექიმმა და რა პასუხი მივიღე'}
+];
+
+const D = [
+{
+ key:'rheum', title:'რევმატოლოგია', doctor:'Asst. Prof. Dr. Mert Öztaş', spec:'Rheumatology / Romatoloji', dip:'164092', total:'$1 729.25',
+ visits:'13.10.2026 პირველადი ($200, კლინიკაში) · 20.10.2026 განმეორებითი (უფასო, ტელეფონით)',
+ payments:[
+  {n:'კონსულტაცია', l:'9 849.42 ₺', u:'$200.00', docs:[
+   ['ok','ტერმინალის ჩეკი','Visa …2739 · 13.10 09:13 · REF 628647542400'],
+   ['ok','ლირის ინვოისი','MSA…284300 · 9 849.42 ₺'],
+   ['gone','დოლარის ინვოისი','არ გაცემულა'],
+   ['ok','ბანკის ქვითარი','528.44 ₾ · საქ. ბანკი …2836'],
+   ['ok','ავანსის ქვითარი','№ 7610621']]},
+  {n:'ლაბორატორია — 15 ანალიზი', l:'35 858.01 ₺', u:'$728.13', docs:[
+   ['ok','ტერმინალის ჩეკი','MC …8342 · 13.10 10:36 · REF 628648578725'],
+   ['ok','ლირის ინვოისი','MSA…284483'],
+   ['ok','დოლარის ინვოისი','…170305.326'],
+   ['ok','ბანკის ქვითარი','$752.53']]},
+  {n:'იდაყვის მრტ', l:'26 383.78 ₺', u:'$535.39', docs:[
+   ['ok','ტერმინალის ჩეკი','MC …8342 · 14.10 15:03 · REF 628715151193'],
+   ['ok','ლირის ინვოისი','MSA…286722'],
+   ['ok','დოლარის ინვოისი','…170058.312'],
+   ['ok','ბანკის ქვითარი','$553.41']]},
+  {n:'კონტრასტი და მასალები', l:'9 315.65 ₺', u:'$188.93', docs:[
+   ['ok','ტერმინალის ჩეკი','MC …8342 · 15.10 14:18 · REF 628825048156'],
+   ['ok','ლირის ინვოისი','MSA…287733'],
+   ['ok','დოლარის ინვოისი','…170037.274'],
+   ['ok','ბანკის ქვითარი','$195.26']]},
+  {n:'გულმკერდის რენტგენი', l:'3 782.20 ₺', u:'$76.80', docs:[
+   ['ok','ერთიან ინვოისში','MSA…284792 — ლორის კტ-ებთან ერთად']]}
+ ],
+ forms:[
+  {t:'დაზღვევის ფორმა 13.10 — № 4531208020', s:'დიაგნოზი M06.9 · ბეჭედი 164092', tr:'ok', en:'ok'},
+  {t:'დაზღვევის ფორმა 20.10 — № 4531244269', s:'ჩანაწერი „სეროპოზიტიური, სინოვიტი +"', tr:'gone', en:'ok',
+   flag:'ხელმოუწერელია · მიმართვის თარიღად 13.10 წერია'}
+ ],
+ orders:[
+  {t:'ექიმის წერილი — № 4531358114 (10.11.2026)', s:'Etanercept 50 მგ კანქვეშ, კვირაში 1-ჯერ, 3 თვე · ლეფლუნომიდი 20 მგ გრძელდება', st:'warn',
+   flag:'თარიღები არ წერია · ექიმის სახელის ველი ცარიელია · კვლევები ჩამოთვლილი არ არის'},
+  {t:'რეცეპტი — № 4531248257 (20.10.2026)', s:'ENBREL PEN 50 მგ · ბეჭედი და ხელმოწერა', st:'ok'}
+ ],
+ ordered:'<b>13.10 ფორმით დანიშნული:</b> CBC · ედსი · CRP · კრეატინინი · BUN · ALT · AST · ALP · CK · შარდმჟავა · გლუკოზა უზმოზე · რევმატოიდული ფაქტორი · anti-CCP · ვიტამინი D · QuantiFERON-TB · შარდის ანალიზი · იდაყვის მრტ (ფორმაში „უკონტრასტო", 3.0 T) · გულმკერდის რენტგენი',
+ orderedFlag:'კონტრასტით მრტ არცერთ საბუთში დანიშნული არ არის — $188.93',
+ results:[
+  {t:'ლაბორატორიის პასუხი — № 4531209050', s:'anti-CCP >200 · RF 175 · ედსი 9 · CRP 0.15 · QuantiFERON უარყოფითი', st:'ok'},
+  {t:'გულმკერდის რენტგენი — № 4531209942', s:'დოქტ. Mehmet Ercan · ფილტვები სუფთა', st:'ok'},
+  {t:'იდაყვის მრტ — № 4531218527', s:'ეროზიები, პანუსი, ეფუზია, ულნარული ნერვის შეშუპება', st:'warn',
+   flag:'სათაურში „უკონტრასტო, 1.5 T", ტექსტში „3 T, კონტრასტით, Gadovist 7.5"'},
+  {t:'იდაყვის მრტ კონტრასტით — № 4531219225', s:'დოქტ. Başak Kumbasar', st:'ok'}
+ ],
+ todo:['წერილში ჩაიწეროს ყველა დანიშნული კვლევა, მათ შორის მრტ კონტრასტის შეყვანამდე და შემდეგ',
+       'წერილში ექიმის სახელი — Mert Öztaş, დიპლომი 164092',
+       'წერილში ვიზიტების თარიღები — 13.10 და 20.10',
+       'კონსულტაციის დოლარის ინვოისი (MSA…284300)']
+},
+{
+ key:'gyn', title:'მეან-გინეკოლოგია', doctor:'Prof. Dr. Faruk Suat Dede', spec:'Kadın Hastalıkları ve Doğum', dip:'61736', total:'$466.48',
+ visits:'13.10.2026 პირველადი ($361.82) · 16.10.2026 განმეორებითი (უფასო)',
+ payments:[
+  {n:'კონსულტაცია + შარდის კვლევები', l:'22 972.27 ₺', u:'$466.48', docs:[
+   ['ok','ტერმინალის ჩეკი','MC …8342 · 13.10 · REF 628600992951'],
+   ['ok','ლირის ინვოისი','MSA…284411 — 3 სტრიქონი'],
+   ['ok','დოლარის ინვოისი','…170351.992'],
+   ['ok','ბანკის ქვითარი','$482.10']]}
+ ],
+ forms:[
+  {t:'დაზღვევის ფორმა 13.10 — № 4531208431', s:'N76.0 მწვავე ვაგინიტი · N83.2 საკვერცხის კისტა · ბეჭედი 61736', tr:'ok', en:'ok'},
+  {t:'დაზღვევის ფორმა 16.10 — № 4531229872', s:'ჩანაწერი „კულტურაში E. coli გაიზარდა"', tr:'ok', en:'ok',
+   flag:'ხელმოუწერელია'}
+ ],
+ orders:[
+  {t:'ექიმის წერილი (10.11.2026)', s:'თარიღები, ექიმის სახელი, კვლევები და ოთხივე წამალი დოზით · ბეჭედი და ხელმოწერა', st:'warn',
+   flag:'აკლია Rapor No, გაცემის თარიღი და დიპლომის № · ექოსკოპია ცალკე კვლევად გამოყოფილი არ არის'},
+  {t:'რეცეპტი — № 4531208391 (13.10)', s:'Neo-Penotran Forte-L · Triflucan 200 მგ · პირადი ბეჭედი 9597', st:'ok'},
+  {t:'რეცეპტი — № 4531229869 (16.10)', s:'Piyeloseptyl 3×1, 10 დღე · Monurol ×2', st:'warn',
+   flag:'მხოლოდ ელექტრონული PDF — ბეჭდიანი ასლი არ გვაქვს'}
+ ],
+ ordered:'<b>13.10 ფორმით დანიშნული:</b> შარდის საერთო ანალიზი · შარდის კულტურა. ასევე კონსულტაციის ფარგლებში ჩატარდა ტრანსვაგინალური ექოსკოპია (ენდომეტრიუმი 10 მმ, მარჯვენა საკვერცხეში 17×15 მმ კისტა).',
+ orderedFlag:'ექოსკოპია ინვოისში ცალკე არ არის გამოყოფილი — მოთხოვნილია გამიჯვნა',
+ results:[
+  {t:'შარდის ანალიზი და კულტურა — № 4531208981', s:'ნიტრიტი 2+ · ბაქტერია ბევრი · ლეიკოციტი 6 · კულტურა: E. coli 100 000 CFU/მლ', st:'ok'},
+  {t:'ანტიბიოგრამა', s:'მგრძნობიარე: ციპროფლოქსაცინი, ცეფტრიაქსონი, ამიკაცინი, ფოსფომიცინი · რეზისტენტული: ამოქსიცილინ-კლავულანატი, ცეფუროქსიმი, ცეფოქსიტინი, ცეფტაზიდიმი', st:'warn',
+   flag:'ნიტროფურანტოინის უჯრა ცარიელია, თუმცა Piyeloseptyl სწორედ ის არის'}
+ ],
+ todo:['კონსულტაციისა და ტრანსვაგინალური ექოსკოპიის ღირებულება ცალ-ცალკე გამოიყოს',
+       '$61.82-ის დაბრუნება ($361.82 vs შეთანხმებული $300)']
+},
+{
+ key:'ent', title:'ოტორინოლარინგოლოგია', doctor:'Prof. Dr. A. Erdem Kılavuz', spec:'Kulak Burun Boğaz', dip:'144065', total:'$968.40',
+ visits:'13.10.2026 პირველადი ($275, კლინიკაში) · 20.10.2026 განმეორებითი (უფასო, ტელეფონით)',
+ payments:[
+  {n:'კონსულტაცია', l:'13 542.95 ₺', u:'$275.00', docs:[
+   ['ok','ტერმინალის ჩეკი','MC …8342 · 13.10 10:12 · REF 628648262640'],
+   ['ok','ლირის ინვოისი','MSA…284419'],
+   ['ok','დოლარის ინვოისი','…170327.401'],
+   ['ok','ბანკის ქვითარი','$284.22']]},
+  {n:'კისრის კტ + სინუსების კტ', l:'34 147.91 ₺', u:'$693.40', docs:[
+   ['ok','ტერმინალის ჩეკი','MC …8342 · 13.10 12:17 · REF 628650042375 · სულ 37 930.11 ₺'],
+   ['ok','ლირის ინვოისი','MSA…284792 — კისერი 20 488.34 ₺ · სინუსები 13 659.57 ₺'],
+   ['ok','დოლარის ინვოისი','…170232.328 — სულ $770.20'],
+   ['ok','ბანკის ქვითარი','$796.01 — რევმატოლოგიის რენტგენთან ერთად']]}
+ ],
+ forms:[
+  {t:'დაზღვევის ფორმა 13.10 — № 4531212425', s:'J34.8 · ბეჭედი 144065 · რეკომენდებული 3 ოპერაცია', tr:'gone', en:'ok',
+   flag:'„Surgical History: None" — არასწორია: ცხვირის ოპერაცია 15 წლის წინ, 2 წლის წინ ინტუბაცია ვერ მოხერხდა'},
+  {t:'20.10-ის ფორმა', s:'კონსულტაცია ტელეფონით ჩატარდა, გადახდა არ ყოფილა', st:'ok', noform:true}
+ ],
+ orders:[
+  {t:'რეცეპტი — № 4531248742 (20.10)', s:'Sterimar 3×1, 90 დღე · Risonel 0.05% 1×2, 90 დღე · პირადი ბეჭედი 144065', st:'ok'},
+  {t:'ექიმის წერილი', s:'საჭირო არ არის — ფორმა, ორი ხელმოწერილი კტ-დასკვნა და რეცეპტი ფარავს პოლისის 1.1.1.1-ს', st:'ok'}
+ ],
+ ordered:'<b>13.10 ფორმით დანიშნული:</b> კისრის კტ (უკონტრასტო, თხელი ანათალები კარინამდე — ჩვენება: შესაძლო ტრაქეის სტენოზი) · პარანაზალური სინუსების კტ',
+ results:[
+  {t:'კისრის კტ — № 4531209940', s:'დოქტ. Müjgan Orman · ძგიდის დევიაცია, ნიჟარის ჰიპერტროფია, მარცხენა ყბისზედა სინუსში სეკრეცია', st:'warn',
+   flag:'„Brain CT" წერია „Neck CT"-ის ნაცვლად (თურქულში BOYUN BT) · ტრაქეა შეფასებული არ არის · წერია „ორსულობის ეჭვი არსებობს"'},
+  {t:'სინუსების კტ — № 4531209941', s:'დოქტ. Müjgan Orman · მარჯვენა ყბისზედა სინუსში რეტენციული კისტა', st:'ok'}
+ ],
+ todo:['დასკვნაში „Brain CT" → „Neck CT"',
+       'დასკვნაში ტრაქეის შეფასება დაემატოს',
+       '„ორსულობის ეჭვი არსებობს" გასწორდეს',
+       'ფორმაში „Surgical History: None" გასწორდეს']
+},
+{
+ key:'mammo', title:'მამოლოგია / ზოგადი ქირურგია', doctor:'Prof. Dr. Cihan Uras', spec:'Genel Cerrahi', dip:'31678', total:'$520.39',
+ visits:'14.10.2026 — ერთადერთი ვიზიტი, განმეორებითი არ ყოფილა',
+ payments:[
+  {n:'კონსულტაცია + მკერდის ექოსკოპია', l:'25 644.43 ₺', u:'$520.39', docs:[
+   ['gone','ტერმინალის ჩეკი','ვერ ნაპოვნია — 14.10 12:57, REF 628713617673'],
+   ['gone','ლირის ინვოისი','ვერ ნაპოვნია — MSA…286415'],
+   ['ok','დოლარის ინვოისი','…170122.835 — Examination $275 + US Breast $245.39'],
+   ['ok','ბანკის ქვითარი','$537.90']]}
+ ],
+ forms:[
+  {t:'დაზღვევის ფორმა 14.10 — № 4531217158', s:'N64.5 · ბეჭედი 31678', tr:'ok', en:'ok',
+   flag:'მკურნალობის ველი სრულიად ცარიელია'}
+ ],
+ orders:[
+  {t:'ექიმის წერილი', s:'არ არსებობს — ფორმის გარდა ჩანაწერი არ არის, თუმცა კონსულტაციაში $275 გადახდილია', st:'gone'},
+  {t:'რეცეპტი', s:'არ გაცემულა — BIRADS II-ზე მკურნალობა საჭირო არ არის', st:'ok'}
+ ],
+ ordered:'<b>14.10 ფორმით დანიშნული:</b> ორივე სარძევე ჯირკვლის ულტრაბგერითი კვლევა (US, Meme — Bilateral)',
+ results:[
+  {t:'მკერდის ექოსკოპია — № 4531217197', s:'ორივე მხარეს მარტივი კისტები · მკვრივი წარმონაქმნები არ არის · BIRADS II', st:'gone',
+   flag:'რადიოლოგის სახელიც და ხელმოწერაც ცარიელია — ინვოისში შემსრულებელია დოც. დრ. Fahrettin Kılıç'}
+ ],
+ todo:['ექოსკოპიის დასკვნა № 4531217197 ხელმოწერილი და ბეჭდიანი — $245.39',
+       '„To whom it may concern" წერილი 14.10-ზე — $275.00',
+       'ლირის ფატურა MSA…286415 და ბარათის ქვითარი 25 644.43 ₺']
+},
+{
+ key:'endo', title:'ენდოკრინოლოგია', doctor:'Prof. Dr. Neslihan Kurtulmuş', spec:'Endokrinoloji ve Metabolizma', dip:'59347 / 20925', total:'$743.69',
+ visits:'13.10.2026 პირველადი ($495.36) · 15.10.2026 განმეორებითი (უფასო)',
+ payments:[
+  {n:'კონსულტაცია', l:'24 395.05 ₺', u:'$495.36', docs:[
+   ['ok','ტერმინალის ჩეკი','MC …8342 · 13.10 12:58 · REF 628650821212'],
+   ['ok','ლირის ინვოისი','MSA…284901 · სრული $540 − ფასდ. $89.67 + დღგ 10% $45.03'],
+   ['ok','დოლარის ინვოისი','…170212.189'],
+   ['ok','ბანკის ქვითარი','$511.96']]},
+  {n:'ლაბორატორია — 6 ანალიზი', l:'12 229.29 ₺', u:'$248.33', docs:[
+   ['ok','ტერმინალის ჩეკი','MC …8342 · 13.10 16:03 · Halkbank · ONAY 613662'],
+   ['ok','ლირის ინვოისი','MSA…285377 — 6 სტრიქონი'],
+   ['ok','დოლარის ინვოისი','…170151.198'],
+   ['ok','ბანკის ქვითარი','$256.65']]}
+ ],
+ forms:[
+  {t:'დაზღვევის ფორმა 13.10 — № 4531210661', s:'E14.9 · ბეჭედი 59347/20925', tr:'ok', en:'ok'},
+  {t:'დაზღვევის ფორმა 15.10 — № 4531223198', s:'„დიაბეტი კვლავ არ არის, ჯანსაღი კვება, გლუკოზა გაკონტროლდება RA-ს მეთვალყურეობისას"', tr:'ok', en:'ok',
+   flag2:'ერთადერთი ფორმა ექიმის პირადი ბეჭდით — Dip. Tes. No 57789'}
+ ],
+ orders:[
+  {t:'მკურნალობა', s:'არ დანიშნულა — დიაგნოზი არ დადასტურდა. რეკომენდაცია: დიეტა და მეთვალყურეობა, საჭიროებისამებრ OGTT', st:'ok'}
+ ],
+ ordered:'<b>13.10 ფორმით დანიშნული:</b> გლუკოზა უზმოზე · გლუკოზა პოსტპრანდიული · TSH · ინსულინი · ინსულინი პოსტპრანდიული · HbA1c — ექვსივე ჩატარდა',
+ results:[
+  {t:'ლაბორატორიის პასუხი — № 4531212524', s:'გლუკოზა 92/84 · პოსტპრანდიული 98 · HbA1c 5.0 · HOMA-IR 0.63 · TSH 0.60 — ყველაფერი ნორმაშია', st:'ok'}
+ ],
+ todo:['$195.36-ის დაბრუნება ($495.36 vs შეთანხმებული $300) და დღგ-ის განმარტება',
+       '15.10 ფორმაზე მიმართვის თარიღი 13.10 → 15.10']
+}
+];
+
+const ICON={ok:'✓',warn:'▲',gone:'✗'};
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const FOLDER_SVG=`<svg width="26" height="22" viewBox="0 0 26 22" fill="none" aria-hidden="true">
+<path d="M1 4.2A2.2 2.2 0 0 1 3.2 2h6.3l2.4 2.6h11A2.2 2.2 0 0 1 25 6.8v12A2.2 2.2 0 0 1 22.8 21H3.2A2.2 2.2 0 0 1 1 18.8V4.2Z"
+ fill="currentColor" opacity=".13"/>
+<path d="M1 4.2A2.2 2.2 0 0 1 3.2 2h6.3l2.4 2.6h11A2.2 2.2 0 0 1 25 6.8v12A2.2 2.2 0 0 1 22.8 21H3.2A2.2 2.2 0 0 1 1 18.8V4.2Z"
+ stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>`;
+let counts={ok:0,warn:0,gone:0};
+
+function chip(st,label,sub){counts[st]++;
+  return `<span class="chip ${st}"><i>${ICON[st]}</i>${esc(label)}${sub?` <small>${esc(sub)}</small>`:''}</span>`;}
+function rowStat(st){counts[st]++;
+  return `<span class="chip ${st}"><i>${ICON[st]}</i>${st==='ok'?'არის':st==='warn'?'ხარვეზით':'აკლია'}</span>`;}
+
+function sectionHTML(d){
+  const pays=d.payments.map(p=>`
+    <div class="pay">
+      <div class="pay-top"><span class="pay-name">${esc(p.n)}</span>
+        <span class="pay-sum">${esc(p.l)} · <b>${esc(p.u)}</b></span></div>
+      <div class="chips">${p.docs.map(x=>chip(x[0],x[1],x[2])).join('')}</div>
+    </div>`).join('');
+  const forms=d.forms.map(f=>{
+    if(f.noform) return `<div class="row"><div class="row-main"><div class="row-t">${esc(f.t)}</div>
+      <div class="row-s">${esc(f.s)}</div></div>${rowStat('ok')}</div>`;
+    const st=(f.tr==='gone'||f.flag)?'warn':'ok';
+    return `<div class="row"><div class="row-main"><div class="row-t">${esc(f.t)}</div>
+      <div class="row-s">${esc(f.s)}</div>
+      <div class="chips" style="margin-top:6px">${chip(f.tr,'თურქული ორიგინალი')}${chip(f.en,'ინგლისური თარგმანი')}</div>
+      ${f.flag?`<div class="flag">${esc(f.flag)}</div>`:''}
+      ${f.flag2?`<div class="flag g">${esc(f.flag2)}</div>`:''}
+    </div>${rowStat(st)}</div>`;}).join('');
+  const ords=d.orders.map(o=>`<div class="row"><div class="row-main">
+    <div class="row-t">${esc(o.t)}</div><div class="row-s">${esc(o.s)}</div>
+    ${o.flag?`<div class="flag${o.st==='warn'?' w':''}">${esc(o.flag)}</div>`:''}
+    </div>${rowStat(o.st)}</div>`).join('');
+  const res=d.results.map(r=>`<div class="row"><div class="row-main">
+    <div class="row-t">${esc(r.t)}</div><div class="row-s">${esc(r.s)}</div>
+    ${r.flag?`<div class="flag${r.st==='warn'?' w':''}">${esc(r.flag)}</div>`:''}
+    </div>${rowStat(r.st)}</div>`).join('');
+  const todo=(d.todo||[]).map((t,i)=>{const k=`${d.key}-${i}`;
+    return `<label class="chk"><input type="checkbox" data-k="${k}"><span>${esc(t)}</span></label>`;}).join('');
+  const bad=d.payments.some(p=>p.docs.some(x=>x[0]!=='ok'))||d.forms.some(f=>f.tr==='gone'||f.flag)
+    ||d.orders.some(o=>o.st!=='ok')||d.results.some(r=>r.st!=='ok');
+  return `<section data-bad="${bad}">
+    <div class="shead">
+      <div><h2>${esc(d.title)}</h2>
+        <div class="doc"><b>${esc(d.doctor)}</b> · ${esc(d.spec)} · დიპლომი ${esc(d.dip)}</div></div>
+      <div class="tot">${esc(d.total)}</div>
+    </div>
+    <div class="body">
+      <div class="row-s" style="margin-bottom:4px">${esc(d.visits)}</div>
+      <h3>გადახდები და ფინანსური საბუთები</h3>${pays}
+      <h3>დაზღვევის ფორმები</h3>${forms}
+      <h3>ექიმის დანიშნულება</h3>${ords}
+      <h3>დანიშნული კვლევები</h3>
+      <div class="note">${d.ordered}${d.orderedFlag?`<div class="flag" style="margin-top:6px">${esc(d.orderedFlag)}</div>`:''}</div>
+      <h3>კვლევების პასუხები</h3>${res}
+      ${todo?`<h3>რა უნდა მოითხოვო</h3>${todo}`:''}
+    </div></section>`;
+}
+
+function home(){
+  const cards=FOLDERS.map(f=>`<button class="folder" data-go="${f.key}">${FOLDER_SVG}
+    <span><span class="f-name">${esc(f.name)}</span>
+    <span class="f-sub">${esc(f.doctor)}</span>
+    <span class="f-tag">3 ქვეფოლდერი</span></span></button>`).join('')
+   +`<button class="folder summary" data-go="__sum">${FOLDER_SVG}
+    <span><span class="f-name">შეჯამება და ანალიზი</span>
+    <span class="f-sub">ხუთივე მიმართულება · საბუთების რუკა</span>
+    <span class="f-tag">6</span></span></button>`;
+  document.getElementById('app').innerHTML=`<div class="folders">${cards}</div>`;
+  document.getElementById('foot').innerHTML=
+    'ექვსი ფოლდერი. პირველ ხუთში სამ-სამი ქვეფოლდერია — ჩეკი და ინვოისი · დანიშნულება · '+
+    'კვლევების ჩამონათვალი და პასუხები. სულ 81 საბუთი — ყველა იხსნება აქვე, ტელეფონიდანაც. '+
+    'მეექვსეში არის სრული ანალიზი: რა გაქვს, რა გაკლია და რა უნდა მოითხოვო.';
+  window.scrollTo(0,0);
+}
+
+function countFiles(seed){
+  if(!seed) return 0;
+  const items=(seed.items||[]).length;
+  const inPays=(seed.pays||[]).reduce((a,p)=>a+p.docs.filter(d=>d.h).length,0);
+  return items+inPays;
+}
+
+function openFolder(key){
+  if(key==='__sum') return summary();
+  const f=FOLDERS.find(x=>x.key===key);
+  const cards=SUBS.map(s=>{
+    const n=countFiles(FILES[`${f.key}/${s.key}`]);
+    return `<button class="folder" data-go="${f.key}/${s.key}">${FOLDER_SVG}
+    <span><span class="f-name">${esc(s.name)}</span>
+    <span class="f-sub">${esc(s.hint)}</span>
+    <span class="f-tag">${n?n+' ფაილი':'ცარიელია'}</span></span></button>`;}).join('');
+  document.getElementById('app').innerHTML=`
+    <div class="crumb"><button class="back" data-go="__home">← ფოლდერები</button><span>${esc(f.name)}</span></div>
+    <div class="folders">${cards}</div>`;
+  document.getElementById('foot').innerHTML=esc(f.doctor)+' · სამი ქვეფოლდერი.';
+  window.scrollTo(0,0);
+}
+
+let CURRENT=null;
+
+function fileRow(it,i){
+  return `<div class="fwrap"><button class="file" data-pdf="${it.h}" data-type="${it.t||'application/pdf'}" data-i="${i}" aria-expanded="false">
+      <svg width="20" height="24" viewBox="0 0 20 24" fill="none" aria-hidden="true">
+        <path d="M2 2.8A1.8 1.8 0 0 1 3.8 1h8L18 7.2v14A1.8 1.8 0 0 1 16.2 23H3.8A1.8 1.8 0 0 1 2 21.2V2.8Z"
+          fill="currentColor" opacity=".12"/>
+        <path d="M2 2.8A1.8 1.8 0 0 1 3.8 1h8L18 7.2v14A1.8 1.8 0 0 1 16.2 23H3.8A1.8 1.8 0 0 1 2 21.2V2.8Z"
+          stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+        <path d="M11.8 1v6.2H18" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+      <span><span class="file-n">${esc(it.n)}</span><span class="file-s">${esc(it.s||'')}</span>${it.warn?`<span class="file-w">${esc(it.warn)}</span>`:''}</span>
+      <span class="file-x">ნახვა</span></button>
+      <div class="pdfbox" id="pdf-${i}" hidden></div></div>`;
+}
+
+function payHTML(p,pi){
+  const tiles=p.docs.map((d,di)=>{
+    const id=`p${pi}d${di}`;
+    const btn=d.h
+      ? `<button data-pdf="${d.h}" data-type="${d.t||'application/pdf'}" data-i="${id}" aria-expanded="false">ნახვა</button>`
+      : `<div class="none">არ არის</div>`;
+    return `<div class="tile"><span class="k">${esc(d.k)}</span>
+      <span class="s">${esc(d.s||'')}</span>${btn}</div>`;}).join('');
+  const sums=[`<span class="sum">ლირაში <b>${esc(p.lira)}</b></span>`];
+  if(p.inv) sums.push(`<span class="sum">ინვოისი <b>${esc(p.inv)}</b></span>`);
+  sums.push(`<span class="sum">ბანკიდან <b>${esc(p.bank)}</b></span>`);
+  sums.push(`<span class="sum fee">საკომისიო <b>${esc(p.diff)}</b></span>`);
+  const boxes=p.docs.map((d,di)=>`<div class="pdfbox" id="pdf-p${pi}d${di}" hidden></div>`).join('');
+  return `<div class="paycard">
+    <div class="payhead"><div class="t">${esc(p.n)}</div>
+      <div class="sums">${sums.join('')}</div>
+      ${p.note?`<div class="paynote">${esc(p.note)}</div>`:''}</div>
+    <div class="tiles">${tiles}</div></div>${boxes}`;
+}
+
+function renderSub(){
+  const {f,s:sub,seed}=CURRENT;
+  let main='', count=0;
+  if(seed.pays){
+    main+=seed.pays.map(payHTML).join('');
+    count=seed.pays.reduce((a,p)=>a+p.docs.filter(d=>d.h).length,0);
+  }
+  if(seed.ordered){
+    main+=`<div class="note">${seed.ordered}${seed.orderedFlag?`<div class="flag" style="margin-top:6px">${esc(seed.orderedFlag)}</div>`:''}</div>`;
+  }
+  const all=[...(seed.items||[])];
+  if(all.length){ main+=`<div class="files" style="margin-top:12px">${all.map(fileRow).join('')}</div>`; count+=all.length; }
+  if(!main) main='<p class="hint">ფოლდერი ცარიელია.</p>';
+  const miss=(seed.miss||[]).map(m=>`<div class="row"><div class="row-main">
+      <div class="row-t" style="color:var(--gone)">${esc(m)}</div></div></div>`).join('');
+  document.getElementById('subbody').innerHTML=`
+    ${main}
+    ${miss?`<h3>ამ ფოლდერში ჯერ არ დევს</h3>${miss}`:''}`;
+  document.getElementById('subcount').textContent=count+' ფაილი';
+}
+
+function openSub(dirKey,subKey){
+  const f=FOLDERS.find(x=>x.key===dirKey), sub=SUBS.find(x=>x.key===subKey);
+  const seed=FILES[`${dirKey}/${subKey}`]||{};
+  CURRENT={f,s:sub,key:`${dirKey}__${subKey}`,seed};
+  document.getElementById('app').innerHTML=`
+    <div class="crumb"><button class="back" data-go="__home">← ფოლდერები</button>
+      <span>/</span><button class="back" data-go="${f.key}">${esc(f.name)}</button>
+      <span>/ ${esc(sub.name)}</span></div>
+    <section><div class="shead"><div><h2>${esc(sub.name)}</h2>
+        <div class="doc">${esc(f.name)} · <b>${esc(f.doctor)}</b></div></div>
+        <div class="tot" id="subcount">—</div></div>
+      <div class="body" id="subbody"></div></section>`;
+  document.getElementById('foot').innerHTML=esc(f.doctor);
+  renderSub();
+  window.scrollTo(0,0);
+}
+
+function summary(){
+  counts={ok:0,warn:0,gone:0};
+  const secs=D.map(sectionHTML).join('');
+  const days=Math.max(0,Math.ceil((new Date(2026,10,15)-new Date())/864e5));
+  document.getElementById('app').innerHTML=`
+    <div class="crumb"><button class="back" data-go="__home">← ფოლდერები</button><span>შეჯამება და ანალიზი</span></div>
+    <div class="stats">
+      <div class="stat have"><b>${counts.ok}</b><span>საბუთი არის</span></div>
+      <div class="stat"><b>${counts.warn}</b><span>ხარვეზით</span></div>
+      <div class="stat due"><b>${counts.gone}</b><span>აკლია</span></div>
+      <div class="stat"><b>${days}</b><span>დღე ვადამდე (15.11)</span></div>
+    </div>
+    <div class="bar"><button class="tgl" id="only" aria-pressed="false">მხოლოდ პრობლემური</button>
+      <span class="hint">მონიშნე, როცა საბუთს მოიპოვებ — შენს ბრაუზერში შეინახება</span></div>
+    ${secs}`;
+  // counts were computed during render; refresh the numbers now that they are final
+  const s=document.querySelectorAll('.stat b');
+  s[0].textContent=counts.ok; s[1].textContent=counts.warn; s[2].textContent=counts.gone;
+  document.getElementById('foot').innerHTML=
+    'ლეგენდა: <b style="color:var(--ok)">✓ არის</b> · <b style="color:var(--warn)">▲ ხარვეზით</b> · '+
+    '<b style="color:var(--gone)">✗ აკლია</b>. თანხები თურქული ინვოისებიდან; ანაზღაურება ქართული საბაზრო ფასით '+
+    'მოხდება (≈3 335 ₾), ლიმიტისა და თანაგადახდის ფარგლებში.';
+  restore();
+  const btn=document.getElementById('only');
+  btn.addEventListener('click',()=>{
+    const on=btn.getAttribute('aria-pressed')==='true';
+    btn.setAttribute('aria-pressed',String(!on));
+    document.querySelectorAll('section').forEach(x=>x.classList.toggle('hidden',!on&&x.dataset.bad!=='true'));
+  });
+  window.scrollTo(0,0);
+}
+
+function restore(){
+  let saved={};
+  try{saved=JSON.parse(localStorage.getItem('acb-dosie')||'{}')}catch(e){}
+  document.querySelectorAll('input[data-k]').forEach(i=>{
+    i.checked=!!saved[i.dataset.k];
+    i.addEventListener('change',()=>{
+      let s={};try{s=JSON.parse(localStorage.getItem('acb-dosie')||'{}')}catch(e){}
+      s[i.dataset.k]=i.checked;
+      try{localStorage.setItem('acb-dosie',JSON.stringify(s))}catch(e){}
+    });
+  });
+}
+
+function absUrl(src){return location.origin+location.pathname.replace(/[^/]*$/,'')+src;}
+
+function fullSrc(src){return src.indexOf('img/')===0?'full/'+src.slice(4):src;}
+
+function bar(src){
+  const o=fullSrc(src);
+  return `<div class="pbar"><a href="${src}" target="_blank" rel="noopener">ცალკე გვერდზე ↗</a>`+
+    (o!==src?`<a href="${o}" target="_blank" rel="noopener">ორიგინალი, სრული ხარისხით ↗</a>`:'')+
+    `</div>`;
+}
+
+function fallback(box,src,msg){
+  const u=absUrl(src);
+  box.innerHTML=bar(src)+`<div class="fallback">${msg}<br><br>${u}
+    <br><button class="cpy" data-copy="${u}">ბმულის კოპირება</button></div>`;
+}
+
+function showFile(box,src,type){
+  if((type||'').startsWith('image/')){
+    box.innerHTML=bar(src)+
+      `<div class="pages"><a href="${fullSrc(src)}" target="_blank" rel="noopener">`+
+      `<img src="${src}" alt="" loading="lazy"></a></div>`;
+    return;
+  }
+  showPdf(box,src);
+}
+
+async function showPdf(box,src){
+  box.innerHTML=bar(src)+'<div class="load">იტვირთება…</div>';
+  if(typeof pdfjsLib==='undefined'){
+    return fallback(box,src,'გამხსნელი ვერ ჩაიტვირთა. ეს მისამართი ბრაუზერის ახალ ჩანართში ჩასვი:');
+  }
+  try{
+    pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    const pdf=await pdfjsLib.getDocument({url:src}).promise;
+    const pages=document.createElement('div'); pages.className='pages';
+    box.innerHTML=bar(src); box.appendChild(pages);
+    const dpr=Math.min(window.devicePixelRatio||1,2);
+    const wide=Math.min(box.clientWidth-24,900);
+    for(let n=1;n<=pdf.numPages;n++){
+      const page=await pdf.getPage(n);
+      const base=page.getViewport({scale:1});
+      const scale=(wide/base.width)*dpr;
+      const vp=page.getViewport({scale});
+      const c=document.createElement('canvas');
+      c.width=Math.floor(vp.width); c.height=Math.floor(vp.height);
+      c.style.width=Math.floor(vp.width/dpr)+'px';
+      pages.appendChild(c);
+      await page.render({canvasContext:c.getContext('2d'),viewport:vp}).promise;
+    }
+  }catch(err){
+    fallback(box,src,'ვერ გამოჩნდა. ეს მისამართი ბრაუზერის ახალ ჩანართში ჩასვი:');
+  }
+}
+
+document.addEventListener('click',e=>{
+  const cp=e.target.closest('[data-copy]');
+  if(cp){
+    const t=cp.dataset.copy;
+    try{navigator.clipboard.writeText(t).then(()=>{cp.textContent='დაკოპირდა ✓';},()=>{cp.textContent='ხელით დააკოპირე';});}
+    catch(err){cp.textContent='ხელით დააკოპირე';}
+    return;
+  }
+  const pb=e.target.closest('[data-pdf]');
+  if(pb){
+    const box=document.getElementById('pdf-'+pb.dataset.i);
+    const open=pb.getAttribute('aria-expanded')==='true';
+    const lbl=pb.querySelector('.file-x');
+    if(open){pb.setAttribute('aria-expanded','false');box.hidden=true;box.innerHTML='';
+      if(lbl)lbl.textContent='ნახვა'; else pb.textContent='ნახვა';}
+    else{
+      pb.setAttribute('aria-expanded','true');
+      if(lbl)lbl.textContent='დახურვა'; else pb.textContent='დახურვა';
+      box.hidden=false;
+      showFile(box,pb.dataset.pdf,pb.dataset.type||'');
+      box.scrollIntoView({block:'nearest',behavior:'smooth'});
+    }
+    return;
+  }
+  const b=e.target.closest('[data-go]');
+  if(!b) return;
+  const k=b.dataset.go;
+  if(k==='__home') return home();
+  if(k.includes('/')){const [d,s]=k.split('/');return openSub(d,s);}
+  openFolder(k);
+});
+
+
+/* ---------- კოდის ეკრანი ----------
+   კოდის შესაცვლელად შეცვალე PIN_HASH — ათვლე ახალი კოდის hash:
+   js>  (t=>{let h=0x811c9dc5;for(const c of new TextEncoder().encode('acb:'+t))
+            {h^=c;h=Math.imul(h,0x01000193)>>>0}return h})('1234')                        */
+const PIN_HASH=2931735225;
+function pinHash(t){
+  let h=0x811c9dc5;
+  for(const c of new TextEncoder().encode('acb:'+t)){h^=c;h=Math.imul(h,0x01000193)>>>0;}
+  return h;
+}
+function unlock(){
+  const g=document.getElementById('gate');
+  if(g) g.remove();
+  document.querySelector('.wrap').hidden=false;
+  home();
+}
+(function gate(){
+  let ok=false;
+  try{ok=localStorage.getItem('acb-gate')===String(PIN_HASH);}catch(e){}
+  if(ok) return unlock();
+  const form=document.getElementById('gateform');
+  const inp=document.getElementById('gpin'), err=document.getElementById('gerr');
+  setTimeout(()=>{try{inp.focus()}catch(e){}},120);
+  form.addEventListener('submit',e=>{
+    e.preventDefault();
+    if(pinHash(inp.value.trim())===PIN_HASH){
+      try{localStorage.setItem('acb-gate',String(PIN_HASH))}catch(e){}
+      unlock();
+    }else{
+      err.textContent='კოდი არ ემთხვევა';
+      inp.value=''; inp.focus();
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
